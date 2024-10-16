@@ -27,12 +27,14 @@ let ReservationsController = class ReservationsController {
         this.reservationsService = reservationsService;
         this.bikesService = bikesService;
     }
+    async findUserReservations(user) {
+        console.log(user);
+        return this.reservationsService.findUserReservations(user.id);
+    }
     async create(bikeId, createReservationDto, user) {
+        console.log(user.role);
         const bike = await this.bikesService.findOne(bikeId);
         return this.reservationsService.create(createReservationDto, user, bike);
-    }
-    findUserReservations(userId) {
-        return this.reservationsService.findUserReservations(userId);
     }
     findAll() {
         return this.reservationsService.findAll();
@@ -45,8 +47,17 @@ exports.ReservationsController = ReservationsController;
 __decorate([
     (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.User),
-    (0, common_1.Post)(':bikeId'),
-    __param(0, (0, common_1.Param)('bikeId')),
+    (0, common_1.Get)("/user"),
+    __param(0, (0, get_user_decorator_1.GetUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [users_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], ReservationsController.prototype, "findUserReservations", null);
+__decorate([
+    (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.User),
+    (0, common_1.Post)(":bikeId"),
+    __param(0, (0, common_1.Param)("bikeId")),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, get_user_decorator_1.GetUser)()),
     __metadata("design:type", Function),
@@ -54,13 +65,6 @@ __decorate([
         users_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], ReservationsController.prototype, "create", null);
-__decorate([
-    (0, common_1.Get)('user/:userId'),
-    __param(0, (0, common_1.Param)('userId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], ReservationsController.prototype, "findUserReservations", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -70,15 +74,15 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.User),
-    (0, common_1.Patch)(':reservationId/cancel'),
-    __param(0, (0, common_1.Param)('reservationId')),
+    (0, common_1.Delete)(":reservationId/cancel"),
+    __param(0, (0, common_1.Param)("reservationId")),
     __param(1, (0, get_user_decorator_1.GetUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, users_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], ReservationsController.prototype, "cancelReservation", null);
 exports.ReservationsController = ReservationsController = __decorate([
-    (0, common_1.Controller)('reservations'),
+    (0, common_1.Controller)("reservations"),
     __metadata("design:paramtypes", [reservation_service_1.ReservationsService,
         bikes_service_1.BikesService])
 ], ReservationsController);

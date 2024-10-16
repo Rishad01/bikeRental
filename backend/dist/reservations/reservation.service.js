@@ -26,13 +26,14 @@ let ReservationsService = class ReservationsService {
             ...createReservationDto,
             user,
             bike,
-            status: 'active',
+            status: "active",
         });
         return await this.reservationsRepository.save(reservation);
     }
     async findUserReservations(userId) {
         return await this.reservationsRepository.find({
             where: { user: { id: userId } },
+            relations: ["bike", "user"],
         });
     }
     async findAll() {
@@ -41,19 +42,15 @@ let ReservationsService = class ReservationsService {
     async cancelReservation(reservationId, user) {
         const reservation = await this.reservationsRepository.findOne({
             where: { id: reservationId },
-            relations: ['user'],
+            relations: ["user"],
         });
         if (!reservation) {
-            throw new common_1.NotFoundException('Reservation not found');
+            throw new common_1.NotFoundException("Reservation not found");
         }
         if (reservation.user.id !== user.id) {
-            throw new common_1.ForbiddenException('You are not allowed to cancel this reservation');
+            throw new common_1.ForbiddenException("You are not allowed to delete this reservation");
         }
-        if (reservation.status === 'cancelled') {
-            throw new common_1.BadRequestException('This reservation has already been canceled');
-        }
-        reservation.status = 'cancelled';
-        return this.reservationsRepository.save(reservation);
+        await this.reservationsRepository.remove(reservation);
     }
 };
 exports.ReservationsService = ReservationsService;

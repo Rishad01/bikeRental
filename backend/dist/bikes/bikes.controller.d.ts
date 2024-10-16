@@ -1,8 +1,8 @@
-import { BikesService } from './bikes.service';
-import { CreateBikeDto } from './dto/create-bike.dto';
-import { Bike } from './bikes.entity';
-import { User } from 'src/users/users.entity';
-import { Reservation } from 'src/reservations/reservation.entity';
+import { BikesService } from "./bikes.service";
+import { CreateBikeDto } from "./dto/create-bike.dto";
+import { Bike } from "./bikes.entity";
+import { User } from "src/users/users.entity";
+import { Reservation } from "src/reservations/reservation.entity";
 export declare class BikesController {
     private readonly bikesService;
     constructor(bikesService: BikesService);

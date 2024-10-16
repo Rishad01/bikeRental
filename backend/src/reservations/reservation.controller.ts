@@ -6,36 +6,45 @@ import {
   Get,
   UseGuards,
   Patch,
-} from '@nestjs/common';
-import { ReservationsService } from './reservation.service';
+  Delete,
+} from "@nestjs/common";
+import { ReservationsService } from "./reservation.service";
 import {
   CreateReservationDto,
   //RateReservationDto,
-} from './dto/create-reservation.dto';
-import { Reservation } from './reservation.entity';
-import { Roles } from 'src/common/roles.decorator';
-import { Role } from 'src/common/role.enum';
-import { GetUser } from 'src/common/get-user.decorator';
-import { User } from 'src/users/users.entity';
-import { BikesService } from 'src/bikes/bikes.service';
-import { AuthRoleGuard } from 'src/auth/auth-role.guard';
+} from "./dto/create-reservation.dto";
+import { Reservation } from "./reservation.entity";
+import { Roles } from "src/common/roles.decorator";
+import { Role } from "src/common/role.enum";
+import { GetUser } from "src/common/get-user.decorator";
+import { User } from "src/users/users.entity";
+import { BikesService } from "src/bikes/bikes.service";
+import { AuthRoleGuard } from "src/auth/auth-role.guard";
 
-@Controller('reservations')
+@Controller("reservations")
 export class ReservationsController {
   constructor(
     private readonly reservationsService: ReservationsService,
-    private readonly bikesService: BikesService,
+    private readonly bikesService: BikesService
   ) {}
 
   @UseGuards(AuthRoleGuard)
   @Roles(Role.User)
-  @Post(':bikeId')
+  @Get("/user")
+  async findUserReservations(@GetUser() user: User): Promise<Reservation[]> {
+    console.log(user);
+    return this.reservationsService.findUserReservations(user.id);
+  }
+
+  @UseGuards(AuthRoleGuard)
+  @Roles(Role.User)
+  @Post(":bikeId")
   async create(
-    @Param('bikeId') bikeId: number,
+    @Param("bikeId") bikeId: number,
     @Body() createReservationDto: CreateReservationDto,
-    @GetUser() user: User,
+    @GetUser() user: User
   ): Promise<Reservation> {
-    //console.log(user.role);
+    console.log(user.role);
     const bike = await this.bikesService.findOne(bikeId);
     return this.reservationsService.create(createReservationDto, user, bike);
   }
@@ -48,13 +57,6 @@ export class ReservationsController {
   //     return this.reservationsService.rateReservation(id, rateReservationDto);
   //   }
 
-  @Get('user/:userId')
-  findUserReservations(
-    @Param('userId') userId: number,
-  ): Promise<Reservation[]> {
-    return this.reservationsService.findUserReservations(userId);
-  }
-
   @Get()
   findAll(): Promise<Reservation[]> {
     return this.reservationsService.findAll();
@@ -62,11 +64,11 @@ export class ReservationsController {
 
   @UseGuards(AuthRoleGuard)
   @Roles(Role.User)
-  @Patch(':reservationId/cancel')
+  @Delete(":reservationId/cancel")
   async cancelReservation(
-    @Param('reservationId') reservationId: number,
-    @GetUser() user: User,
-  ): Promise<Reservation> {
+    @Param("reservationId") reservationId: number,
+    @GetUser() user: User
+  ): Promise<any> {
     return this.reservationsService.cancelReservation(reservationId, user);
   }
 }

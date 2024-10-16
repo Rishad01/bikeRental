@@ -30,13 +30,26 @@ let AuthService = class AuthService {
         return { user, token };
     }
     async login(email, password) {
-        const user = await this.usersService.findUserByEmail(email);
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+        try {
+            const user = await this.usersService.findUserByEmail(email);
+            if (!user) {
+                throw new common_1.UnauthorizedException("User with this email does not exist.");
+            }
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException("Incorrect password. Please try again.");
+            }
+            const payload = { email: user.email, role: user.role, id: user.id };
+            const token = this.jwtService.sign(payload);
+            const { password: _, ...userWithoutPassword } = user;
+            return { user: userWithoutPassword, token };
         }
-        const payload = { email: user.email, role: user.role, id: user.id };
-        const token = this.jwtService.sign(payload);
-        return { user, token };
+        catch (error) {
+            if (error instanceof common_1.UnauthorizedException) {
+                throw error;
+            }
+            throw new common_1.InternalServerErrorException("An error occurred while processing the login request.");
+        }
     }
 };
 exports.AuthService = AuthService;

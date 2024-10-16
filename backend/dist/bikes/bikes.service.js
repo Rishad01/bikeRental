@@ -65,7 +65,6 @@ let BikesService = class BikesService {
         });
         const from = fromDate ? new Date(fromDate) : null;
         const to = toDate ? new Date(toDate) : null;
-        console.log(bikes);
         const filteredBikes = bikes.filter((bike) => {
             if (!from || !to)
                 return true;

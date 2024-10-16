@@ -3,34 +3,34 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Reservation } from './reservation.entity';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Reservation } from "./reservation.entity";
 import {
   CreateReservationDto,
   //RateReservationDto,
-} from './dto/create-reservation.dto';
-import { User } from '../users/users.entity';
-import { Bike } from '../bikes/bikes.entity';
+} from "./dto/create-reservation.dto";
+import { User } from "../users/users.entity";
+import { Bike } from "../bikes/bikes.entity";
 
 @Injectable()
 export class ReservationsService {
   constructor(
     @InjectRepository(Reservation)
-    private reservationsRepository: Repository<Reservation>,
+    private reservationsRepository: Repository<Reservation>
   ) {}
 
   async create(
     createReservationDto: CreateReservationDto,
     user: User,
-    bike: Bike,
+    bike: Bike
   ): Promise<Reservation> {
     const reservation = this.reservationsRepository.create({
       ...createReservationDto,
       user,
       bike,
-      status: 'active',
+      status: "active",
     });
     //console.log(reservation);
     return await this.reservationsRepository.save(reservation);
@@ -47,6 +47,7 @@ export class ReservationsService {
   async findUserReservations(userId: number): Promise<Reservation[]> {
     return await this.reservationsRepository.find({
       where: { user: { id: userId } },
+      relations: ["bike", "user"],
     });
   }
 
@@ -54,32 +55,26 @@ export class ReservationsService {
     return await this.reservationsRepository.find();
   }
 
-  async cancelReservation(
-    reservationId: number,
-    user: User,
-  ): Promise<Reservation> {
+  async cancelReservation(reservationId: number, user: User): Promise<void> {
+    // Find the reservation with the specified ID
     const reservation = await this.reservationsRepository.findOne({
       where: { id: reservationId },
-      relations: ['user'],
+      relations: ["user"],
     });
 
+    // Check if the reservation exists
     if (!reservation) {
-      throw new NotFoundException('Reservation not found');
+      throw new NotFoundException("Reservation not found");
     }
 
+    // Check if the current user is the owner of the reservation
     if (reservation.user.id !== user.id) {
       throw new ForbiddenException(
-        'You are not allowed to cancel this reservation',
+        "You are not allowed to delete this reservation"
       );
     }
 
-    if (reservation.status === 'cancelled') {
-      throw new BadRequestException(
-        'This reservation has already been canceled',
-      );
-    }
-
-    reservation.status = 'cancelled';
-    return this.reservationsRepository.save(reservation);
+    // Delete the reservation
+    await this.reservationsRepository.remove(reservation);
   }
 }

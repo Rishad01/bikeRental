@@ -9,44 +9,45 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
-} from '@nestjs/common';
-import { BikesService } from './bikes.service';
-import { CreateBikeDto } from './dto/create-bike.dto';
-import { Bike } from './bikes.entity';
-import { AuthRoleGuard } from 'src/auth/auth-role.guard';
-import { GetUser } from 'src/common/get-user.decorator';
-import { User } from 'src/users/users.entity';
-import { Reservation } from 'src/reservations/reservation.entity';
+} from "@nestjs/common";
+import { BikesService } from "./bikes.service";
+import { CreateBikeDto } from "./dto/create-bike.dto";
+import { Bike } from "./bikes.entity";
+import { AuthRoleGuard } from "src/auth/auth-role.guard";
+import { GetUser } from "src/common/get-user.decorator";
+import { User } from "src/users/users.entity";
+import { Reservation } from "src/reservations/reservation.entity";
 
-@Controller('bikes')
+@Controller("bikes")
 export class BikesController {
   constructor(private readonly bikesService: BikesService) {}
 
-  @Get(':id/reservations')
+  @Get(":id/reservations")
   async getReservationsByBikeId(
-    @Param('id', ParseIntPipe) id: number,
+    @Param("id", ParseIntPipe) id: number
   ): Promise<Reservation[]> {
     return await this.bikesService.findReservationsByBikeId(id);
   }
   @UseGuards(AuthRoleGuard)
-  @Get('search')
+  @Get("search")
   async findFilteredBikes(
     @GetUser() user: User,
-    @Query('color') color?: string,
-    @Query('model') model?: string,
-    @Query('fromDate') fromDate?: string,
-    @Query('toDate') toDate?: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query("color") color?: string,
+    @Query("model") model?: string,
+    @Query("fromDate") fromDate?: string,
+    @Query("toDate") toDate?: string,
+    @Query("page") page: number = 1,
+    @Query("limit") limit: number = 10
   ) {
-    const userRole = user.role; // Fetch the role from the user object
+    const userRole = user.role;
+
     const filters = { color, model, fromDate, toDate };
-    console.log(filters);
+
     return this.bikesService.findFilteredBikesWithoutJoin(
       filters,
       page,
       limit,
-      userRole,
+      userRole
     );
   }
 
@@ -60,21 +61,21 @@ export class BikesController {
     return this.bikesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number): Promise<Bike> {
+  @Get(":id")
+  findOne(@Param("id") id: number): Promise<Bike> {
     return this.bikesService.findOne(id);
   }
 
-  @Put('edit/:id')
+  @Put("edit/:id")
   update(
-    @Param('id') id: number,
-    @Body() updateBikeDto: Partial<CreateBikeDto>,
+    @Param("id") id: number,
+    @Body() updateBikeDto: Partial<CreateBikeDto>
   ): Promise<Bike> {
     return this.bikesService.update(id, updateBikeDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: number): Promise<void> {
+  @Delete(":id")
+  remove(@Param("id") id: number): Promise<void> {
     return this.bikesService.remove(id);
   }
 }
