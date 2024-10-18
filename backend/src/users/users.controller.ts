@@ -7,12 +7,15 @@ import {
   UseGuards,
   Request,
   ParseIntPipe,
+  UsePipes,
 } from "@nestjs/common";
 import { AuthRoleGuard } from "../auth/auth-role.guard";
 import { Roles } from "../common/roles.decorator";
 import { Role } from "../common/role.enum";
 import { UsersService } from "./users.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { updateUserSchema } from "src/validation/validation.schema";
+import { JoiValidationPipe } from "src/validation/validation.pipe";
 
 @Controller("users")
 export class UsersController {
@@ -32,6 +35,7 @@ export class UsersController {
   }
 
   @Put(":id")
+  @UsePipes(new JoiValidationPipe(updateUserSchema))
   @Roles(Role.Manager)
   async updateUser(
     @Param("id", ParseIntPipe) id: number,

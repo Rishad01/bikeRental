@@ -4,9 +4,11 @@ const API_URL = "http://localhost:3000";
 export const fetchBikesApi = async (filters, page, limit, token) => {
   try {
     const isFiltersApplied =
-      filters.color || filters.model || (filters.fromDate && filters.toDate);
+      filters.color ||
+      filters.model ||
+      (filters.fromDate && filters.toDate) ||
+      filters.avgRating;
 
-    // Use `/bikes` if no filters are applied, otherwise use `/bikes/search`
     const endpoint = isFiltersApplied
       ? `${API_URL}/bikes/search`
       : `${API_URL}/bikes`;
@@ -51,5 +53,22 @@ export const deleteBikeApi = async (bikeId, token) => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || "Error deleting bike");
+  }
+};
+
+export const editBikeApi = async (bikeId, updatedBikeData, token) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/bikes/edit/${bikeId}`,
+      updatedBikeData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Error editing bike");
   }
 };

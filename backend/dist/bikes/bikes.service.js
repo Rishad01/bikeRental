@@ -59,12 +59,15 @@ let BikesService = class BikesService {
         await this.bikesRepository.delete(id);
     }
     async findFilteredBikesWithoutJoin(filters, page, limit, userRole) {
-        const { color, model, fromDate, toDate } = filters;
+        const { color, model, fromDate, toDate, avgRating } = filters;
+        console.log(avgRating);
         const where = {};
         if (color)
             where.color = color;
         if (model)
             where.model = model;
+        if (avgRating)
+            where.avgRating = (0, typeorm_2.MoreThanOrEqual)(avgRating);
         const [bikes, total] = await this.bikesRepository.findAndCount({
             where,
             skip: (page - 1) * limit,
@@ -94,6 +97,7 @@ let BikesService = class BikesService {
         };
     }
     async updateBikeRating(bikeId) {
+        console.log("hello");
         const bike = await this.bikesRepository.findOne({ where: { id: bikeId } });
         if (!bike) {
             throw new common_1.NotFoundException("Bike not found");

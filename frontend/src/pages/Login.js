@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { loginUser } from "../api/authApi";
-import { toast } from "../utils/toast";
+import { toast } from "react-toastify";
 import { loginSchema } from "../validation/Authvalidation";
-import { ToastContainer } from "../components/ToastContainer";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/authSlice";
+import { Container, Form, Button, Alert } from "react-bootstrap";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // New state for error messages
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous error on form submission
+    setError("");
 
     const validationResult = loginSchema.validate({ email, password });
     if (validationResult.error) {
-      setError(validationResult.error.details[0].message); // Set error message
+      setError(validationResult.error.details[0].message);
       toast.error(validationResult.error.details[0].message);
       return;
     }
@@ -30,50 +30,57 @@ function Login() {
       const token = response.data.token;
       const role = response.data.user.role;
       localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
       dispatch(setCredentials({ token, role }));
-      console.log(response);
       toast.success("Login successful");
       navigate("/home");
     } catch (error) {
-      console.log(error);
       const errorMessage = error.response?.data?.message || "Login failed";
-      setError(errorMessage); // Set error message for API failure
+      setError(errorMessage);
       toast.error(errorMessage);
     }
   };
 
-  // Clear error when inputs change
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);
-    setError(""); // Clear error message when changing email
+    setError("");
   };
 
   const handleChangePassword = (e) => {
     setPassword(e.target.value);
-    setError(""); // Clear error message when changing password
+    setError("");
   };
 
   return (
-    <div>
+    <Container className="mt-5">
       <h2>Login</h2>
-      {error && <div style={{ color: "red" }}>{error}</div>}{" "}
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={handleChangeEmail}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={handleChangePassword}
-        />
-        <button type="submit">Login</button>
-      </form>
-      <ToastContainer />
-    </div>
+      {error && <Alert variant="danger">{error}</Alert>}{" "}
+      <Form onSubmit={handleLogin}>
+        <Form.Group controlId="formBasicEmail">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={handleChangeEmail}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formBasicPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={handleChangePassword}
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+          Login
+        </Button>
+      </Form>
+    </Container>
   );
 }
 

@@ -4,8 +4,9 @@ import {
   updateUserApi,
   promoteToManagerApi,
 } from "../api/userApi";
-import { toast } from "../utils/toast";
+import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 
 const Users = () => {
   const token = localStorage.getItem("token");
@@ -48,50 +49,78 @@ const Users = () => {
   };
 
   return (
-    <div>
-      <h2>User Management</h2>
+    <Container>
+      <h2 className="mt-4">User Management</h2>
       {users.length > 0 ? (
-        users.map((user) => (
-          <div key={user.id} style={{ marginBottom: "10px" }}>
-            <p>Name: {user.name}</p>
-            <p>Email: {user.email}</p>
-            <p>Role: {user.role}</p>
+        <Row>
+          {users.map((user) => (
+            <Col key={user.id} md={4} className="mb-3">
+              <Card>
+                <Card.Body>
+                  <Card.Title>{user.name}</Card.Title>
+                  <Card.Text>
+                    <strong>Email:</strong> {user.email}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Role:</strong> {user.role}
+                  </Card.Text>
 
-            {editingUser === user.id ? (
-              <div>
-                <input
-                  type="email"
-                  value={editedEmail}
-                  onChange={(e) => setEditedEmail(e.target.value)}
-                  placeholder="Edit Email"
-                />
-                <button onClick={() => handleEditUser(user.id)}>Save</button>
-                <button onClick={() => setEditingUser(null)}>Cancel</button>
-              </div>
-            ) : (
-              <div>
-                <button
-                  onClick={() => {
-                    setEditingUser(user.id);
-                    setEditedEmail(user.email);
-                  }}
-                >
-                  Edit Email
-                </button>
+                  {editingUser === user.id ? (
+                    <div>
+                      <Form.Group controlId={`editEmail-${user.id}`}>
+                        <Form.Control
+                          type="email"
+                          value={editedEmail}
+                          onChange={(e) => setEditedEmail(e.target.value)}
+                          placeholder="Edit Email"
+                        />
+                      </Form.Group>
+                      <Button
+                        variant="success"
+                        onClick={() => handleEditUser(user.id)}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setEditingUser(null)}
+                        className="ms-2"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          setEditingUser(user.id);
+                          setEditedEmail(user.email);
+                        }}
+                      >
+                        Edit Email
+                      </Button>
 
-                {user.role === "user" && (
-                  <button onClick={() => handlePromoteToManager(user.id)}>
-                    Promote to Manager
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        ))
+                      {user.role === "user" && (
+                        <Button
+                          variant="warning"
+                          onClick={() => handlePromoteToManager(user.id)}
+                          className="ms-2"
+                        >
+                          Promote to Manager
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
       ) : (
         <p>No users found.</p>
       )}
-    </div>
+    </Container>
   );
 };
 

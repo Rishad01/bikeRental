@@ -1,7 +1,6 @@
 import axios from "axios";
 const API_URL = "http://localhost:3000";
 
-// Fetch all users
 export const getAllUsersApi = async (token) => {
   try {
     const response = await axios.get(`${API_URL}/users`, {
@@ -15,7 +14,6 @@ export const getAllUsersApi = async (token) => {
   }
 };
 
-// Promote user to manager
 export const promoteToManagerApi = async (userId, token) => {
   try {
     await axios.put(
@@ -34,7 +32,6 @@ export const promoteToManagerApi = async (userId, token) => {
   }
 };
 
-// Update user details (e.g., email)
 export const updateUserApi = async (userId, updateData, token) => {
   try {
     await axios.put(`${API_URL}/users/${userId}`, updateData, {

@@ -36,7 +36,6 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  // Promote a user to manager
   async promoteToManager(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
 
@@ -52,7 +51,6 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  // Update user details (like email)
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
 
@@ -60,7 +58,7 @@ export class UsersService {
       throw new NotFoundException("User not found");
     }
 
-    Object.assign(user, updateUserDto); // Update the fields
+    Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
   }
 }

@@ -1,23 +1,26 @@
-import { Controller, Post, Body } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import {
+  Controller,
+  Post,
+  Body,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { SignupDto, LoginDto } from "./dto/auth.dto";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
-  async signup(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.authService.signup(email, password);
+  @Post("signup")
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async signup(@Body() signupDto: SignupDto) {
+    return this.authService.signup(signupDto.email, signupDto.password);
   }
 
-  @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    return this.authService.login(email, password);
+  @Post("login")
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto.email, loginDto.password);
   }
 }

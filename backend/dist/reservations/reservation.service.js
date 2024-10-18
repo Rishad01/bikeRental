@@ -51,13 +51,16 @@ let ReservationsService = class ReservationsService {
         });
     }
     async cancelReservation(reservationId, user) {
+        console.log(reservationId);
         const reservation = await this.reservationsRepository.findOne({
             where: { id: reservationId },
-            relations: ["user"],
+            relations: ["user", "bike"],
         });
+        console.log(reservation);
         if (!reservation) {
             throw new common_1.NotFoundException("Reservation not found");
         }
+        console.log(user.id);
         if (user.role === "manager") {
             await this.reservationsRepository.remove(reservation);
             await this.bikeService.updateBikeRating(reservation.bike.id);
@@ -66,6 +69,7 @@ let ReservationsService = class ReservationsService {
         if (reservation.user.id !== user.id) {
             throw new common_1.ForbiddenException("You are not allowed to cancel this reservation");
         }
+        console.log(reservation);
         await this.reservationsRepository.remove(reservation);
         await this.bikeService.updateBikeRating(reservation.bike.id);
     }

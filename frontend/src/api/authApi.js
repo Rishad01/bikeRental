@@ -7,5 +7,5 @@ export const loginUser = (email, password) => {
 };
 
 export const signupUser = (email, password) => {
-  return axios.post(`${API_URL}/signup`, { email, password });
+  return axios.post(`${API_URL}/auth/signup`, { email, password });
 };

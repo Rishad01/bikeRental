@@ -9,8 +9,7 @@ function Homepage() {
   return (
     <div>
       <Navbar role={role} />
-      <h1>Welcome to the Homepage</h1>
-      {token && <p>Your token: {token}</p>}
+
       <Outlet />
     </div>
   );

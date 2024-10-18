@@ -38,6 +38,17 @@ export class ReservationsController {
 
   @UseGuards(AuthRoleGuard)
   @Roles(Role.User)
+  @Post(":id/rate")
+  async rateReservation(
+    @Param("id") reservationId: number,
+    @Body("rating") rating: number,
+    @GetUser() user: User
+  ) {
+    await this.reservationsService.rateReservation(reservationId, rating, user);
+  }
+
+  @UseGuards(AuthRoleGuard)
+  @Roles(Role.User)
   @Post(":bikeId")
   async create(
     @Param("bikeId") bikeId: number,
@@ -47,17 +58,6 @@ export class ReservationsController {
     console.log(user.role);
     const bike = await this.bikesService.findOne(bikeId);
     return this.reservationsService.create(createReservationDto, user, bike);
-  }
-
-  @UseGuards(AuthRoleGuard)
-  @Roles(Role.User)
-  @Post(":id/rate")
-  async rateReservation(
-    @Param("id") reservationId: number,
-    @Body("rating") rating: number,
-    @GetUser() user: User
-  ) {
-    await this.reservationsService.rateReservation(reservationId, rating, user);
   }
 
   @Get()
@@ -72,6 +72,7 @@ export class ReservationsController {
     @Param("reservationId") reservationId: number,
     @GetUser() user: User
   ): Promise<any> {
+    //console.log(user);
     return this.reservationsService.cancelReservation(reservationId, user);
   }
 }

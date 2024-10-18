@@ -8,8 +8,8 @@ export declare class ReservationsController {
     private readonly bikesService;
     constructor(reservationsService: ReservationsService, bikesService: BikesService);
     findUserReservations(user: User): Promise<Reservation[]>;
-    create(bikeId: number, createReservationDto: CreateReservationDto, user: User): Promise<Reservation>;
     rateReservation(reservationId: number, rating: number, user: User): Promise<void>;
+    create(bikeId: number, createReservationDto: CreateReservationDto, user: User): Promise<Reservation>;
     findAll(): Promise<Reservation[]>;
     cancelReservation(reservationId: number, user: User): Promise<any>;
 }

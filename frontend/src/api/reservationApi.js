@@ -66,3 +66,21 @@ export const getAllReservationsApi = async (token) => {
     );
   }
 };
+
+export const updateReservationRatingApi = async (
+  reservationId,
+  rating,
+  token
+) => {
+  console.log(token);
+  const response = await axios.post(
+    `${API_URL}/reservations/${reservationId}/rate`,
+    { rating },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};

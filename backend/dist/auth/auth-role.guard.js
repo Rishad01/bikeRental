@@ -21,16 +21,17 @@ let AuthRoleGuard = class AuthRoleGuard {
     }
     canActivate(context) {
         const request = context.switchToHttp().getRequest();
-        const token = request.headers.authorization?.split(' ')[1];
+        const token = request.headers.authorization?.split(" ")[1];
         if (!token) {
-            throw new common_1.ForbiddenException('No token found');
+            throw new common_1.ForbiddenException("No token found");
         }
+        console.log("hello");
         try {
-            const decoded = this.jwtService.verify(token, { secret: 'secretKey' });
+            const decoded = this.jwtService.verify(token, { secret: "secretKey" });
             request.user = decoded;
         }
         catch (err) {
-            throw new common_1.ForbiddenException('Invalid token');
+            throw new common_1.ForbiddenException("Invalid token");
         }
         const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [
             context.getHandler(),

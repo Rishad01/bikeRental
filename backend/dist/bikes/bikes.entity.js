@@ -32,7 +32,7 @@ __decorate([
     __metadata("design:type", String)
 ], Bike.prototype, "location", void 0);
 __decorate([
-    (0, typeorm_1.Column)('decimal', { precision: 2, scale: 1 }),
+    (0, typeorm_1.Column)("decimal", { precision: 3, scale: 2 }),
     __metadata("design:type", Number)
 ], Bike.prototype, "avgRating", void 0);
 __decorate([

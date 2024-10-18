@@ -16,16 +16,12 @@ export class AuthService {
   ) {}
 
   async signup(email: string, password: string): Promise<any> {
-    // Check if there is any manager in the system
     const managerExists = await this.usersService.doesManagerExist();
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // If no manager, assign role 'manager', else 'user'
     const role = managerExists ? Role.User : Role.Manager;
 
-    // Create and save the user
     const user = await this.usersService.createUser(
       email,
       hashedPassword,

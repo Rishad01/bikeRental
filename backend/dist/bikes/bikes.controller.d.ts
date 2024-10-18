@@ -7,7 +7,7 @@ export declare class BikesController {
     private readonly bikesService;
     constructor(bikesService: BikesService);
     getReservationsByBikeId(id: number): Promise<Reservation[]>;
-    findFilteredBikes(user: User, color?: string, model?: string, fromDate?: string, toDate?: string, page?: number, limit?: number): Promise<{
+    findFilteredBikes(user: User, color?: string, model?: string, fromDate?: string, toDate?: string, avgRating?: string, page?: number, limit?: number): Promise<{
         bikes: Bike[];
         totalPages: number;
     }>;

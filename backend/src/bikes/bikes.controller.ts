@@ -9,6 +9,7 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
+  UsePipes,
 } from "@nestjs/common";
 import { BikesService } from "./bikes.service";
 import { CreateBikeDto } from "./dto/create-bike.dto";
@@ -17,6 +18,8 @@ import { AuthRoleGuard } from "src/auth/auth-role.guard";
 import { GetUser } from "src/common/get-user.decorator";
 import { User } from "src/users/users.entity";
 import { Reservation } from "src/reservations/reservation.entity";
+import { JoiValidationPipe } from "src/validation/validation.pipe";
+import { createBikeSchema } from "src/validation/validation.schema";
 
 @Controller("bikes")
 export class BikesController {
@@ -36,12 +39,20 @@ export class BikesController {
     @Query("model") model?: string,
     @Query("fromDate") fromDate?: string,
     @Query("toDate") toDate?: string,
+    @Query("avgRating") avgRating?: string,
     @Query("page") page: number = 1,
     @Query("limit") limit: number = 10
   ) {
     const userRole = user.role;
 
-    const filters = { color, model, fromDate, toDate };
+    const avgRatingNumber = avgRating ? parseFloat(avgRating) : undefined;
+    const filters = {
+      color,
+      model,
+      fromDate,
+      toDate,
+      avgRating: avgRatingNumber,
+    };
 
     return this.bikesService.findFilteredBikesWithoutJoin(
       filters,
@@ -52,6 +63,7 @@ export class BikesController {
   }
 
   @Post()
+  @UsePipes(new JoiValidationPipe(createBikeSchema))
   create(@Body() createBikeDto: CreateBikeDto): Promise<Bike> {
     return this.bikesService.create(createBikeDto);
   }
@@ -59,7 +71,7 @@ export class BikesController {
   @Get()
   findAll(
     @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10
+    @Query("limit") limit: number = 2
   ): Promise<{ bikes: Bike[]; totalPages: number }> {
     return this.bikesService.findAll(page, limit);
   }

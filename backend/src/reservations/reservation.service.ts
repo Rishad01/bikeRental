@@ -67,15 +67,18 @@ export class ReservationsService {
   }
 
   async cancelReservation(reservationId: number, user: User): Promise<void> {
+    console.log(reservationId);
     const reservation = await this.reservationsRepository.findOne({
       where: { id: reservationId },
-      relations: ["user"],
+      relations: ["user", "bike"],
     });
+
+    console.log(reservation);
 
     if (!reservation) {
       throw new NotFoundException("Reservation not found");
     }
-
+    console.log(user.id);
     if (user.role === "manager") {
       await this.reservationsRepository.remove(reservation);
       await this.bikeService.updateBikeRating(reservation.bike.id);
@@ -88,6 +91,7 @@ export class ReservationsService {
       );
     }
 
+    console.log(reservation);
     await this.reservationsRepository.remove(reservation);
     await this.bikeService.updateBikeRating(reservation.bike.id);
   }

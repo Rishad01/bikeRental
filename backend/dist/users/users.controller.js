@@ -19,6 +19,8 @@ const roles_decorator_1 = require("../common/roles.decorator");
 const role_enum_1 = require("../common/role.enum");
 const users_service_1 = require("./users.service");
 const update_user_dto_1 = require("./dto/update-user.dto");
+const validation_schema_1 = require("../validation/validation.schema");
+const validation_pipe_1 = require("../validation/validation.pipe");
 let UsersController = class UsersController {
     constructor(userService) {
         this.userService = userService;
@@ -52,6 +54,7 @@ __decorate([
 ], UsersController.prototype, "promoteToManager", null);
 __decorate([
     (0, common_1.Put)(":id"),
+    (0, common_1.UsePipes)(new validation_pipe_1.JoiValidationPipe(validation_schema_1.updateUserSchema)),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),

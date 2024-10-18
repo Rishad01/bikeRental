@@ -19,6 +19,8 @@ const create_bike_dto_1 = require("./dto/create-bike.dto");
 const auth_role_guard_1 = require("../auth/auth-role.guard");
 const get_user_decorator_1 = require("../common/get-user.decorator");
 const users_entity_1 = require("../users/users.entity");
+const validation_pipe_1 = require("../validation/validation.pipe");
+const validation_schema_1 = require("../validation/validation.schema");
 let BikesController = class BikesController {
     constructor(bikesService) {
         this.bikesService = bikesService;
@@ -26,15 +28,22 @@ let BikesController = class BikesController {
     async getReservationsByBikeId(id) {
         return await this.bikesService.findReservationsByBikeId(id);
     }
-    async findFilteredBikes(user, color, model, fromDate, toDate, page = 1, limit = 10) {
+    async findFilteredBikes(user, color, model, fromDate, toDate, avgRating, page = 1, limit = 10) {
         const userRole = user.role;
-        const filters = { color, model, fromDate, toDate };
+        const avgRatingNumber = avgRating ? parseFloat(avgRating) : undefined;
+        const filters = {
+            color,
+            model,
+            fromDate,
+            toDate,
+            avgRating: avgRatingNumber,
+        };
         return this.bikesService.findFilteredBikesWithoutJoin(filters, page, limit, userRole);
     }
     create(createBikeDto) {
         return this.bikesService.create(createBikeDto);
     }
-    findAll(page = 1, limit = 10) {
+    findAll(page = 1, limit = 2) {
         return this.bikesService.findAll(page, limit);
     }
     findOne(id) {
@@ -63,14 +72,16 @@ __decorate([
     __param(2, (0, common_1.Query)("model")),
     __param(3, (0, common_1.Query)("fromDate")),
     __param(4, (0, common_1.Query)("toDate")),
-    __param(5, (0, common_1.Query)("page")),
-    __param(6, (0, common_1.Query)("limit")),
+    __param(5, (0, common_1.Query)("avgRating")),
+    __param(6, (0, common_1.Query)("page")),
+    __param(7, (0, common_1.Query)("limit")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [users_entity_1.User, String, String, String, String, Number, Number]),
+    __metadata("design:paramtypes", [users_entity_1.User, String, String, String, String, String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], BikesController.prototype, "findFilteredBikes", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UsePipes)(new validation_pipe_1.JoiValidationPipe(validation_schema_1.createBikeSchema)),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_bike_dto_1.CreateBikeDto]),

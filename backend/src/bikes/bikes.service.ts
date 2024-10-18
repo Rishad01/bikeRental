@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { IsNull, Not, Repository } from "typeorm";
+import { IsNull, MoreThanOrEqual, Not, Repository } from "typeorm";
 import { Bike } from "./bikes.entity";
 import { CreateBikeDto } from "./dto/create-bike.dto";
 import { Reservation } from "../reservations/reservation.entity";
@@ -71,11 +71,12 @@ export class BikesService {
     limit: number,
     userRole: string
   ): Promise<{ bikes: Bike[]; totalPages: number }> {
-    const { color, model, fromDate, toDate } = filters;
-
+    const { color, model, fromDate, toDate, avgRating } = filters;
+    console.log(avgRating);
     const where: any = {};
     if (color) where.color = color;
     if (model) where.model = model;
+    if (avgRating) where.avgRating = MoreThanOrEqual(avgRating);
 
     const [bikes, total] = await this.bikesRepository.findAndCount({
       where,
@@ -118,6 +119,7 @@ export class BikesService {
   }
 
   async updateBikeRating(bikeId: number): Promise<void> {
+    console.log("hello");
     const bike = await this.bikesRepository.findOne({ where: { id: bikeId } });
 
     if (!bike) {
