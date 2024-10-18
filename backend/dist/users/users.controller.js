@@ -17,33 +17,50 @@ const common_1 = require("@nestjs/common");
 const auth_role_guard_1 = require("../auth/auth-role.guard");
 const roles_decorator_1 = require("../common/roles.decorator");
 const role_enum_1 = require("../common/role.enum");
+const users_service_1 = require("./users.service");
+const update_user_dto_1 = require("./dto/update-user.dto");
 let UsersController = class UsersController {
-    getProfile() {
-        return 'This is the user profile';
+    constructor(userService) {
+        this.userService = userService;
     }
-    getAdminPanel(req) {
-        console.log(req.user);
-        return 'This is the admin panel, managers only';
+    async findAll() {
+        return this.userService.findAll();
+    }
+    async promoteToManager(id) {
+        return this.userService.promoteToManager(id);
+    }
+    async updateUser(id, updateUserDto) {
+        return this.userService.updateUser(id, updateUserDto);
     }
 };
 exports.UsersController = UsersController;
 __decorate([
     (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
-    (0, common_1.Get)('profile'),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
+    (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "getProfile", null);
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
+    (0, common_1.Put)(":id/promote"),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
-    (0, common_1.Get)('admin'),
-    __param(0, (0, common_1.Request)()),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], UsersController.prototype, "getAdminPanel", null);
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "promoteToManager", null);
+__decorate([
+    (0, common_1.Put)(":id"),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateUser", null);
 exports.UsersController = UsersController = __decorate([
-    (0, common_1.Controller)('users')
+    (0, common_1.Controller)("users"),
+    __metadata("design:paramtypes", [users_service_1.UsersService])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

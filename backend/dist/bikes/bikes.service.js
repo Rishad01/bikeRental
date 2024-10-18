@@ -37,8 +37,16 @@ let BikesService = class BikesService {
         const bike = this.bikesRepository.create(createBikeDto);
         return await this.bikesRepository.save(bike);
     }
-    async findAll() {
-        return await this.bikesRepository.find();
+    async findAll(page, limit) {
+        const [bikes, totalBikes] = await this.bikesRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+        const totalPages = Math.ceil(totalBikes / limit);
+        return {
+            bikes,
+            totalPages,
+        };
     }
     async findOne(id) {
         return await this.bikesRepository.findOne({ where: { id } });
@@ -63,6 +71,7 @@ let BikesService = class BikesService {
             take: limit,
             relations: ["reservations"],
         });
+        console.log(bikes);
         const from = fromDate ? new Date(fromDate) : null;
         const to = toDate ? new Date(toDate) : null;
         const filteredBikes = bikes.filter((bike) => {
@@ -83,6 +92,25 @@ let BikesService = class BikesService {
             bikes: filteredBikes,
             totalPages: Math.ceil(total / limit),
         };
+    }
+    async updateBikeRating(bikeId) {
+        const bike = await this.bikesRepository.findOne({ where: { id: bikeId } });
+        if (!bike) {
+            throw new common_1.NotFoundException("Bike not found");
+        }
+        const reservations = await this.reservationRepository.find({
+            where: { bike: { id: bikeId }, rating: (0, typeorm_2.Not)((0, typeorm_2.IsNull)()) },
+        });
+        if (reservations.length > 0) {
+            const totalRating = reservations.reduce((acc, reservation) => acc + reservation.rating, 0);
+            const avgRating = totalRating / reservations.length;
+            bike.avgRating = parseFloat(avgRating.toFixed(1));
+            await this.bikesRepository.save(bike);
+        }
+        else {
+            bike.avgRating = 0;
+            await this.bikesRepository.save(bike);
+        }
     }
 };
 exports.BikesService = BikesService;

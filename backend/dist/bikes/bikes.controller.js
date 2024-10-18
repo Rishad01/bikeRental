@@ -34,8 +34,8 @@ let BikesController = class BikesController {
     create(createBikeDto) {
         return this.bikesService.create(createBikeDto);
     }
-    findAll() {
-        return this.bikesService.findAll();
+    findAll(page = 1, limit = 10) {
+        return this.bikesService.findAll(page, limit);
     }
     findOne(id) {
         return this.bikesService.findOne(id);
@@ -78,8 +78,10 @@ __decorate([
 ], BikesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)("page")),
+    __param(1, (0, common_1.Query)("limit")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], BikesController.prototype, "findAll", null);
 __decorate([

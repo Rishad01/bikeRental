@@ -1,23 +1,42 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
-import { AuthRoleGuard } from '../auth/auth-role.guard';
-import { Roles } from '../common/roles.decorator';
-import { Role } from '../common/role.enum';
+import {
+  Param,
+  Body,
+  Put,
+  Controller,
+  Get,
+  UseGuards,
+  Request,
+  ParseIntPipe,
+} from "@nestjs/common";
+import { AuthRoleGuard } from "../auth/auth-role.guard";
+import { Roles } from "../common/roles.decorator";
+import { Role } from "../common/role.enum";
+import { UsersService } from "./users.service";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
-  // Open for all authenticated users
-  @UseGuards(AuthRoleGuard)
-  @Get('profile')
-  getProfile() {
-    return 'This is the user profile';
-  }
+  constructor(private readonly userService: UsersService) {}
 
-  // Only accessible by managers
   @UseGuards(AuthRoleGuard)
   @Roles(Role.Manager)
-  @Get('admin')
-  getAdminPanel(@Request() req: any) {
-    console.log(req.user);
-    return 'This is the admin panel, managers only';
+  @Get()
+  async findAll() {
+    return this.userService.findAll();
+  }
+
+  @Put(":id/promote")
+  @Roles(Role.Manager)
+  async promoteToManager(@Param("id", ParseIntPipe) id: number) {
+    return this.userService.promoteToManager(id);
+  }
+
+  @Put(":id")
+  @Roles(Role.Manager)
+  async updateUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    return this.userService.updateUser(id, updateUserDto);
   }
 }

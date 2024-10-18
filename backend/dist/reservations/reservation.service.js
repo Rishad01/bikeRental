@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const reservation_entity_1 = require("./reservation.entity");
+const bikes_service_1 = require("../bikes/bikes.service");
 let ReservationsService = class ReservationsService {
-    constructor(reservationsRepository) {
+    constructor(reservationsRepository, bikeService) {
         this.reservationsRepository = reservationsRepository;
+        this.bikeService = bikeService;
     }
     async create(createReservationDto, user, bike) {
         const reservation = this.reservationsRepository.create({
@@ -37,7 +39,16 @@ let ReservationsService = class ReservationsService {
         });
     }
     async findAll() {
-        return await this.reservationsRepository.find();
+        return await this.reservationsRepository.find({
+            relations: ["bike", "user"],
+            select: {
+                user: {
+                    id: true,
+                    email: true,
+                    role: true,
+                },
+            },
+        });
     }
     async cancelReservation(reservationId, user) {
         const reservation = await this.reservationsRepository.findOne({
@@ -47,16 +58,44 @@ let ReservationsService = class ReservationsService {
         if (!reservation) {
             throw new common_1.NotFoundException("Reservation not found");
         }
+        if (user.role === "manager") {
+            await this.reservationsRepository.remove(reservation);
+            await this.bikeService.updateBikeRating(reservation.bike.id);
+            return;
+        }
         if (reservation.user.id !== user.id) {
-            throw new common_1.ForbiddenException("You are not allowed to delete this reservation");
+            throw new common_1.ForbiddenException("You are not allowed to cancel this reservation");
         }
         await this.reservationsRepository.remove(reservation);
+        await this.bikeService.updateBikeRating(reservation.bike.id);
+    }
+    async rateReservation(reservationId, rating, user) {
+        const reservation = await this.reservationsRepository.findOne({
+            where: { id: reservationId },
+            relations: ["user", "bike"],
+        });
+        if (!reservation) {
+            throw new common_1.NotFoundException("Reservation not found");
+        }
+        if (rating < 1 || rating > 5) {
+            throw new common_1.BadRequestException("Rating must be between 1.0 and 5.0");
+        }
+        if (reservation.user.id !== user.id) {
+            throw new common_1.ForbiddenException("You are not allowed to rate this reservation");
+        }
+        if (reservation.rating !== null) {
+            throw new common_1.BadRequestException("You have already rated this reservation");
+        }
+        reservation.rating = rating;
+        await this.reservationsRepository.save(reservation);
+        await this.bikeService.updateBikeRating(reservation.bike.id);
     }
 };
 exports.ReservationsService = ReservationsService;
 exports.ReservationsService = ReservationsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(reservation_entity_1.Reservation)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        bikes_service_1.BikesService])
 ], ReservationsService);
 //# sourceMappingURL=reservation.service.js.map

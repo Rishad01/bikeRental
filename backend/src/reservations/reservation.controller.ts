@@ -49,13 +49,16 @@ export class ReservationsController {
     return this.reservationsService.create(createReservationDto, user, bike);
   }
 
-  //   @Patch(':id/rate')
-  //   rate(
-  //     @Param('id') id: number,
-  //     @Body() rateReservationDto: RateReservationDto,
-  //   ): Promise<Reservation> {
-  //     return this.reservationsService.rateReservation(id, rateReservationDto);
-  //   }
+  @UseGuards(AuthRoleGuard)
+  @Roles(Role.User)
+  @Post(":id/rate")
+  async rateReservation(
+    @Param("id") reservationId: number,
+    @Body("rating") rating: number,
+    @GetUser() user: User
+  ) {
+    await this.reservationsService.rateReservation(reservationId, rating, user);
+  }
 
   @Get()
   findAll(): Promise<Reservation[]> {
@@ -63,7 +66,7 @@ export class ReservationsController {
   }
 
   @UseGuards(AuthRoleGuard)
-  @Roles(Role.User)
+  @Roles(Role.Manager, Role.User)
   @Delete(":reservationId/cancel")
   async cancelReservation(
     @Param("reservationId") reservationId: number,

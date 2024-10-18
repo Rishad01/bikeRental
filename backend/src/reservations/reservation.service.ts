@@ -13,12 +13,14 @@ import {
 } from "./dto/create-reservation.dto";
 import { User } from "../users/users.entity";
 import { Bike } from "../bikes/bikes.entity";
+import { BikesService } from "src/bikes/bikes.service";
 
 @Injectable()
 export class ReservationsService {
   constructor(
     @InjectRepository(Reservation)
-    private reservationsRepository: Repository<Reservation>
+    private reservationsRepository: Repository<Reservation>,
+    private readonly bikeService: BikesService
   ) {}
 
   async create(
@@ -52,29 +54,75 @@ export class ReservationsService {
   }
 
   async findAll(): Promise<Reservation[]> {
-    return await this.reservationsRepository.find();
+    return await this.reservationsRepository.find({
+      relations: ["bike", "user"],
+      select: {
+        user: {
+          id: true,
+          email: true,
+          role: true,
+        },
+      },
+    });
   }
 
   async cancelReservation(reservationId: number, user: User): Promise<void> {
-    // Find the reservation with the specified ID
     const reservation = await this.reservationsRepository.findOne({
       where: { id: reservationId },
       relations: ["user"],
     });
 
-    // Check if the reservation exists
     if (!reservation) {
       throw new NotFoundException("Reservation not found");
     }
 
-    // Check if the current user is the owner of the reservation
+    if (user.role === "manager") {
+      await this.reservationsRepository.remove(reservation);
+      await this.bikeService.updateBikeRating(reservation.bike.id);
+      return;
+    }
+
     if (reservation.user.id !== user.id) {
       throw new ForbiddenException(
-        "You are not allowed to delete this reservation"
+        "You are not allowed to cancel this reservation"
       );
     }
 
-    // Delete the reservation
     await this.reservationsRepository.remove(reservation);
+    await this.bikeService.updateBikeRating(reservation.bike.id);
+  }
+
+  async rateReservation(
+    reservationId: number,
+    rating: number,
+    user: User
+  ): Promise<void> {
+    const reservation = await this.reservationsRepository.findOne({
+      where: { id: reservationId },
+      relations: ["user", "bike"],
+    });
+
+    if (!reservation) {
+      throw new NotFoundException("Reservation not found");
+    }
+
+    if (rating < 1 || rating > 5) {
+      throw new BadRequestException("Rating must be between 1.0 and 5.0");
+    }
+
+    if (reservation.user.id !== user.id) {
+      throw new ForbiddenException(
+        "You are not allowed to rate this reservation"
+      );
+    }
+
+    if (reservation.rating !== null) {
+      throw new BadRequestException("You have already rated this reservation");
+    }
+
+    reservation.rating = rating;
+    await this.reservationsRepository.save(reservation);
+
+    await this.bikeService.updateBikeRating(reservation.bike.id);
   }
 }

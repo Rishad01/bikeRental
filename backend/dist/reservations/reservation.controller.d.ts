@@ -9,6 +9,7 @@ export declare class ReservationsController {
     constructor(reservationsService: ReservationsService, bikesService: BikesService);
     findUserReservations(user: User): Promise<Reservation[]>;
     create(bikeId: number, createReservationDto: CreateReservationDto, user: User): Promise<Reservation>;
+    rateReservation(reservationId: number, rating: number, user: User): Promise<void>;
     findAll(): Promise<Reservation[]>;
     cancelReservation(reservationId: number, user: User): Promise<any>;
 }

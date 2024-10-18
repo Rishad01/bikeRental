@@ -30,8 +30,32 @@ let UsersService = class UsersService {
         return this.usersRepository.findOne({ where: { email } });
     }
     async doesManagerExist() {
-        const manager = await this.usersRepository.findOne({ where: { role: role_enum_1.Role.Manager } });
+        const manager = await this.usersRepository.findOne({
+            where: { role: role_enum_1.Role.Manager },
+        });
         return !!manager;
+    }
+    async findAll() {
+        return await this.usersRepository.find();
+    }
+    async promoteToManager(id) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException("User not found");
+        }
+        if (user.role === role_enum_1.Role.Manager) {
+            throw new common_1.BadRequestException("User is already a manager");
+        }
+        user.role = role_enum_1.Role.Manager;
+        return this.usersRepository.save(user);
+    }
+    async updateUser(id, updateUserDto) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException("User not found");
+        }
+        Object.assign(user, updateUserDto);
+        return this.usersRepository.save(user);
     }
 };
 exports.UsersService = UsersService;

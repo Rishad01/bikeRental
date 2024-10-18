@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { IsNull, Not, Repository } from "typeorm";
 import { Bike } from "./bikes.entity";
 import { CreateBikeDto } from "./dto/create-bike.dto";
 import { Reservation } from "../reservations/reservation.entity";
@@ -32,8 +32,21 @@ export class BikesService {
     return await this.bikesRepository.save(bike);
   }
 
-  async findAll(): Promise<Bike[]> {
-    return await this.bikesRepository.find();
+  async findAll(
+    page: number,
+    limit: number
+  ): Promise<{ bikes: Bike[]; totalPages: number }> {
+    const [bikes, totalBikes] = await this.bikesRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(totalBikes / limit);
+
+    return {
+      bikes,
+      totalPages,
+    };
   }
 
   async findOne(id: number): Promise<Bike> {
@@ -71,6 +84,7 @@ export class BikesService {
       relations: ["reservations"],
     });
 
+    console.log(bikes);
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
 
@@ -101,5 +115,31 @@ export class BikesService {
       bikes: filteredBikes,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async updateBikeRating(bikeId: number): Promise<void> {
+    const bike = await this.bikesRepository.findOne({ where: { id: bikeId } });
+
+    if (!bike) {
+      throw new NotFoundException("Bike not found");
+    }
+
+    const reservations = await this.reservationRepository.find({
+      where: { bike: { id: bikeId }, rating: Not(IsNull()) },
+    });
+
+    if (reservations.length > 0) {
+      const totalRating = reservations.reduce(
+        (acc, reservation) => acc + reservation.rating,
+        0
+      );
+      const avgRating = totalRating / reservations.length;
+      bike.avgRating = parseFloat(avgRating.toFixed(1));
+
+      await this.bikesRepository.save(bike);
+    } else {
+      bike.avgRating = 0;
+      await this.bikesRepository.save(bike);
+    }
   }
 }

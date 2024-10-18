@@ -36,6 +36,9 @@ let ReservationsController = class ReservationsController {
         const bike = await this.bikesService.findOne(bikeId);
         return this.reservationsService.create(createReservationDto, user, bike);
     }
+    async rateReservation(reservationId, rating, user) {
+        await this.reservationsService.rateReservation(reservationId, rating, user);
+    }
     findAll() {
         return this.reservationsService.findAll();
     }
@@ -66,6 +69,17 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ReservationsController.prototype, "create", null);
 __decorate([
+    (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.User),
+    (0, common_1.Post)(":id/rate"),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Body)("rating")),
+    __param(2, (0, get_user_decorator_1.GetUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, users_entity_1.User]),
+    __metadata("design:returntype", Promise)
+], ReservationsController.prototype, "rateReservation", null);
+__decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -73,7 +87,7 @@ __decorate([
 ], ReservationsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.UseGuards)(auth_role_guard_1.AuthRoleGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.User),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager, role_enum_1.Role.User),
     (0, common_1.Delete)(":reservationId/cancel"),
     __param(0, (0, common_1.Param)("reservationId")),
     __param(1, (0, get_user_decorator_1.GetUser)()),

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchBikesApi } from "../api/bikeApi";
+import { fetchBikesApi, addBikeApi, deleteBikeApi } from "../api/bikeApi";
 import { reserveBikeApi } from "../api/reservationApi";
 import { toast } from "../utils/toast";
 import { useSelector } from "react-redux";
@@ -13,6 +13,12 @@ const Bikes = () => {
     model: "",
     fromDate: "",
     toDate: "",
+  });
+  const [newBike, setNewBike] = useState({
+    location: "",
+    color: "",
+    model: "",
+    avgRating: 0,
   });
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -43,6 +49,11 @@ const Bikes = () => {
     setFilters({ ...filters, [name]: value });
   };
 
+  const handleNewBikeChange = (e) => {
+    const { name, value } = e.target;
+    setNewBike({ ...newBike, [name]: value });
+  };
+
   const handleReserveBike = async (bikeId) => {
     if (!filters.fromDate || !filters.toDate) {
       toast.error("Please specify both 'From Date' and 'To Date' to reserve.");
@@ -55,6 +66,27 @@ const Bikes = () => {
       fetchBikes();
     } catch (error) {
       toast.error(error.message || "Error reserving bike");
+    }
+  };
+
+  const handleAddBike = async () => {
+    try {
+      await addBikeApi(newBike, token);
+      toast.success("Bike added successfully!");
+      fetchBikes();
+      setNewBike({ location: "", color: "", model: "" });
+    } catch (error) {
+      toast.error(error.message || "Error adding bike");
+    }
+  };
+
+  const handleDeleteBike = async (bikeId) => {
+    try {
+      await deleteBikeApi(bikeId, token);
+      toast.success("Bike deleted successfully!");
+      fetchBikes(); // Refresh bike list after deletion
+    } catch (error) {
+      toast.error(error.message || "Error deleting bike");
     }
   };
 
@@ -108,6 +140,45 @@ const Bikes = () => {
         </button>
       </div>
 
+      {role === "manager" && (
+        <div style={{ marginBottom: "20px" }}>
+          <h4>Add New Bike</h4>
+          <div>
+            <label>Location:</label>
+            <input
+              type="text"
+              name="location"
+              value={newBike.location}
+              onChange={handleNewBikeChange}
+              placeholder="Bike Location"
+            />
+          </div>
+          <div>
+            <label>Color:</label>
+            <input
+              type="text"
+              name="color"
+              value={newBike.color}
+              onChange={handleNewBikeChange}
+              placeholder="Bike Color"
+            />
+          </div>
+          <div>
+            <label>Model:</label>
+            <input
+              type="text"
+              name="model"
+              value={newBike.model}
+              onChange={handleNewBikeChange}
+              placeholder="Bike Model"
+            />
+          </div>
+          <button onClick={handleAddBike} style={{ marginTop: "10px" }}>
+            Add Bike
+          </button>
+        </div>
+      )}
+
       <div>
         {bikes.length > 0 ? (
           <>
@@ -123,6 +194,15 @@ const Bikes = () => {
                     style={{ marginTop: "10px" }}
                   >
                     Reserve Bike
+                  </button>
+                )}
+
+                {role === "manager" && (
+                  <button
+                    onClick={() => handleDeleteBike(bike.id)}
+                    style={{ marginTop: "10px", color: "red" }}
+                  >
+                    Delete Bike
                   </button>
                 )}
               </div>

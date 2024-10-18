@@ -25,7 +25,7 @@ __decorate([
     __metadata("design:type", users_entity_1.User)
 ], Reservation.prototype, "user", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => bikes_entity_1.Bike, (bike) => bike.reservations),
+    (0, typeorm_1.ManyToOne)(() => bikes_entity_1.Bike, (bike) => bike.reservations, { onDelete: "CASCADE" }),
     __metadata("design:type", bikes_entity_1.Bike)
 ], Reservation.prototype, "bike", void 0);
 __decorate([
@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", String)
 ], Reservation.prototype, "review", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ type: "decimal", precision: 2, scale: 1, nullable: true }),
     __metadata("design:type", Number)
 ], Reservation.prototype, "rating", void 0);
 exports.Reservation = Reservation = __decorate([

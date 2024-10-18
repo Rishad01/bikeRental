@@ -57,8 +57,11 @@ export class BikesController {
   }
 
   @Get()
-  findAll(): Promise<Bike[]> {
-    return this.bikesService.findAll();
+  findAll(
+    @Query("page") page: number = 1,
+    @Query("limit") limit: number = 10
+  ): Promise<{ bikes: Bike[]; totalPages: number }> {
+    return this.bikesService.findAll(page, limit);
   }
 
   @Get(":id")

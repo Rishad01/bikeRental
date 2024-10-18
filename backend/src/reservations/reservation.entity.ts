@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { User } from '../users/users.entity';
-import { Bike } from '../bikes/bikes.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { User } from "../users/users.entity";
+import { Bike } from "../bikes/bikes.entity";
 
 @Entity()
 export class Reservation {
@@ -10,7 +10,7 @@ export class Reservation {
   @ManyToOne(() => User, (user) => user.reservations)
   user: User;
 
-  @ManyToOne(() => Bike, (bike) => bike.reservations)
+  @ManyToOne(() => Bike, (bike) => bike.reservations, { onDelete: "CASCADE" })
   bike: Bike;
 
   @Column()
@@ -20,11 +20,11 @@ export class Reservation {
   endDate: Date;
 
   @Column()
-  status: 'active' | 'cancelled';
+  status: "active" | "cancelled";
 
   @Column({ nullable: true })
   review: string;
 
-  @Column({ nullable: true })
-  rating: number;
+  @Column({ type: "decimal", precision: 2, scale: 1, nullable: true })
+  rating: number | null;
 }

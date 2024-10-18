@@ -1,14 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './users.entity';
-import { Role } from '../common/role.enum';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "./users.entity";
+import { Role } from "../common/role.enum";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>
   ) {}
 
   async createUser(email: string, password: string, role: Role): Promise<User> {
@@ -21,7 +26,41 @@ export class UsersService {
   }
 
   async doesManagerExist(): Promise<boolean> {
-    const manager = await this.usersRepository.findOne({ where: { role: Role.Manager } });
+    const manager = await this.usersRepository.findOne({
+      where: { role: Role.Manager },
+    });
     return !!manager;
+  }
+
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
+  }
+
+  // Promote a user to manager
+  async promoteToManager(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    if (user.role === Role.Manager) {
+      throw new BadRequestException("User is already a manager");
+    }
+
+    user.role = Role.Manager;
+    return this.usersRepository.save(user);
+  }
+
+  // Update user details (like email)
+  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    Object.assign(user, updateUserDto); // Update the fields
+    return this.usersRepository.save(user);
   }
 }
