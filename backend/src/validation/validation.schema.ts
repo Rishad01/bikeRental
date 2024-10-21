@@ -29,5 +29,4 @@ export const createBikeSchema = Joi.object({
 
 export const updateUserSchema = Joi.object({
   email: Joi.string().email().optional(),
-  role: Joi.string().valid("user", "manager").optional(),
 });

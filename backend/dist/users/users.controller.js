@@ -28,11 +28,11 @@ let UsersController = class UsersController {
     async findAll() {
         return this.userService.findAll();
     }
-    async promoteToManager(id) {
-        return this.userService.promoteToManager(id);
-    }
     async updateUser(id, updateUserDto) {
         return this.userService.updateUser(id, updateUserDto);
+    }
+    async promoteToManager(id) {
+        return this.userService.promoteToManager(id);
     }
 };
 exports.UsersController = UsersController;
@@ -45,6 +45,15 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Put)(":id"),
+    (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
+    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)(new validation_pipe_1.JoiValidationPipe(validation_schema_1.updateUserSchema))),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateUser", null);
+__decorate([
     (0, common_1.Put)(":id/promote"),
     (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
     __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
@@ -52,16 +61,6 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "promoteToManager", null);
-__decorate([
-    (0, common_1.Put)(":id"),
-    (0, common_1.UsePipes)(new validation_pipe_1.JoiValidationPipe(validation_schema_1.updateUserSchema)),
-    (0, roles_decorator_1.Roles)(role_enum_1.Role.Manager),
-    __param(0, (0, common_1.Param)("id", common_1.ParseIntPipe)),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, update_user_dto_1.UpdateUserDto]),
-    __metadata("design:returntype", Promise)
-], UsersController.prototype, "updateUser", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)("users"),
     __metadata("design:paramtypes", [users_service_1.UsersService])

@@ -33,9 +33,9 @@ const Navbar = ({ role }) => {
             </Nav.Link>
           )}
         </Nav>
-        {/* <Button variant="outline-danger" onClick={handleLogout}>
+        <Button variant="outline-danger" onClick={handleLogout}>
           Logout
-        </Button> */}
+        </Button>
       </BootstrapNavbar.Collapse>
     </BootstrapNavbar>
   );

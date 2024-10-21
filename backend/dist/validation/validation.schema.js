@@ -28,6 +28,5 @@ exports.createBikeSchema = Joi.object({
 });
 exports.updateUserSchema = Joi.object({
     email: Joi.string().email().optional(),
-    role: Joi.string().valid("user", "manager").optional(),
 });
 //# sourceMappingURL=validation.schema.js.map

@@ -52,6 +52,7 @@ export class UsersService {
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    //console.log("hello");
     const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) {

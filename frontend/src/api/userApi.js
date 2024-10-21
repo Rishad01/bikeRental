@@ -34,6 +34,7 @@ export const promoteToManagerApi = async (userId, token) => {
 
 export const updateUserApi = async (userId, updateData, token) => {
   try {
+    console.log(updateData);
     await axios.put(`${API_URL}/users/${userId}`, updateData, {
       headers: {
         Authorization: `Bearer ${token}`,

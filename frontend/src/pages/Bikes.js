@@ -44,6 +44,11 @@ const Bikes = () => {
       return;
     }
 
+    if (filters.avgRating && (filters.avgRating < 0 || filters.avgRating > 5)) {
+      toast.error("Rating must be between 0 and 5");
+      return;
+    }
+
     try {
       const bikeData = await fetchBikesApi(filters, page, limit, token);
       setBikes(bikeData.bikes);
@@ -253,7 +258,12 @@ const Bikes = () => {
                 <Card.Title>{bike.name}</Card.Title>
                 <Card.Text>Color: {bike.color}</Card.Text>
                 <Card.Text>Model: {bike.model}</Card.Text>
-                <Card.Text>Average Rating: {bike.avgRating}</Card.Text>
+                <Card.Text>
+                  Average Rating:{" "}
+                  {bike.avgRating
+                    ? bike.avgRating
+                    : "Not rated by any user yet!"}
+                </Card.Text>
                 <Card.Text>Location: {bike.location}</Card.Text>
 
                 {role === "user" && filters.fromDate && filters.toDate && (

@@ -28,19 +28,18 @@ export class UsersController {
     return this.userService.findAll();
   }
 
+  @Put(":id")
+  @Roles(Role.Manager)
+  async updateUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserDto
+  ) {
+    return this.userService.updateUser(id, updateUserDto);
+  }
+
   @Put(":id/promote")
   @Roles(Role.Manager)
   async promoteToManager(@Param("id", ParseIntPipe) id: number) {
     return this.userService.promoteToManager(id);
-  }
-
-  @Put(":id")
-  @UsePipes(new JoiValidationPipe(updateUserSchema))
-  @Roles(Role.Manager)
-  async updateUser(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
-    return this.userService.updateUser(id, updateUserDto);
   }
 }
